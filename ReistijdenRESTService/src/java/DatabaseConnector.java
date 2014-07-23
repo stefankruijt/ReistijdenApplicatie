@@ -38,8 +38,7 @@ public class DatabaseConnector
     
     public String getTrajectData(String location)
     {
-        DBCollection collection = db.getCollection("trajects");
-        
+        DBCollection collection = db.getCollection("trajects");        
         BasicDBObject query = new BasicDBObject();
         query.put("_id", location);
         DBObject dbtraject = collection.findOne(query);
@@ -47,17 +46,13 @@ public class DatabaseConnector
         return result;
     }
     
-    public String getReistijden(String location)
+    public DBCursor getReistijden(String location)
     {
-        // TODO  Deze methode is niet af.
-        
         DBCollection collection = db.getCollection("measurements");
         BasicDBObject query = new BasicDBObject();
         query.put("location", location);
         DBCursor measurements = collection.find(query);
-        
-        
-        String result = JSON.serialize(measurements);
-        return result;
+        measurements.sort(new BasicDBObject("timestamp", -1));
+        return measurements;
     }
 }

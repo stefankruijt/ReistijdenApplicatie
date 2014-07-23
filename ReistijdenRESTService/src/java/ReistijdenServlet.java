@@ -1,10 +1,17 @@
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 @WebServlet("/reistijden")
@@ -23,15 +30,35 @@ public class ReistijdenServlet extends HttpServlet
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
-        String json = database.getReistijden("TrajectSensor_Route117_R");
-        
+        String location = request.getParameter("location");
+        DBCursor json = database.getReistijden(location);
         JSONObject object = new JSONObject();
-        object.put("name", "Stefan Kruijt");
+        String id = "";
+        JSONArray list = new JSONArray();
+        
+        while(json.hasNext())
+        {
+            DBObject measurement = json.next();
+            id = (String) measurement.get("location");
+            
+            JSONArray values = new JSONArray();
+            Date timestamp = (Date) measurement.get("timestamp");
+            values.add(timestamp);
+            int traveltime = (int) measurement.get("traveltime");
+            values.add(traveltime);
+            int velocity = (int) measurement.get("velocity");        
+            values.add(velocity);
+            
+            list.add(values);
+        }
+         
+        object.put("id", id);        
+        object.put("measurements", list);
         
         response.setContentType("application/json");
         try (PrintWriter out = response.getWriter()) 
         {
-            out.print(json);
+            out.print(object);
             out.flush();
         }
     }

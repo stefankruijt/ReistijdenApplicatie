@@ -23,7 +23,8 @@ public class TrajectenServlet extends HttpServlet
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
-        String json = database.getTrajectData("TrajectSensor_Route117_R");
+        String location = request.getParameter("location");        
+        String json = database.getTrajectData(location);
         
         JSONObject object = new JSONObject();
         object.put("name", "Stefan Kruijt");
