@@ -123,7 +123,7 @@ public class DatabaseConnector
 
         BasicDBObject document = new BasicDBObject();
         document.put("_id", traject.getTrajectId());
-        document.put("name", traject.getName());
+        document.put("location", traject.getLocation());
         document.put("coordinatesHashCode", traject.getRDCoordinates().hashCode());
         document.put("coordinates", coordinates);
         table.insert(document);

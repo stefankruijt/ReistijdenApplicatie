@@ -6,7 +6,7 @@ import org.json.simple.JSONArray;
 public class Traject 
 {
 	private String trajectId;
-        private String name;	
+        private String location;	
 	private String type;	
 	private JSONArray rdCoordinates;
 	private List<long[]> etrs89Coordinates;
@@ -31,14 +31,14 @@ public class Traject
 		this.type = type;
 	}
         
-        public String getName() 
+        public String getLocation() 
 	{
-		return name;
+		return location;
 	}
 	
-	public void setName(String name) 
+	public void setLocation(String location) 
 	{
-		this.name = name;
+		this.location = location;
 	}
 	
 	public JSONArray getRDCoordinates()

@@ -76,7 +76,7 @@ public class ReistijdenJSONParser
             traject.setTrajectId(id);
             
             JSONObject properties = (JSONObject) route.get("properties");
-            traject.setName(properties.get("Name").toString());
+            traject.setLocation(properties.get("Name").toString());
 
             JSONObject geometry = (JSONObject) route.get("geometry");
             String type = (String) geometry.get("type");
