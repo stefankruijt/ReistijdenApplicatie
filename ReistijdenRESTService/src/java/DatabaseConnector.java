@@ -42,6 +42,18 @@ public class DatabaseConnector
         BasicDBObject query = new BasicDBObject();
         query.put("_id", location);
         DBObject dbtraject = collection.findOne(query);
+        
+        if(dbtraject==null)
+            return "Location not found";
+        
+        String result = JSON.serialize(dbtraject);
+        return result;
+    }
+    
+    public String getAllTrajects()
+    {
+        DBCollection collection = db.getCollection("trajects");        
+        DBCursor dbtraject = collection.find();
         String result = JSON.serialize(dbtraject);
         return result;
     }
@@ -53,6 +65,7 @@ public class DatabaseConnector
         query.put("location", location);
         DBCursor measurements = collection.find(query);
         measurements.sort(new BasicDBObject("timestamp", -1));
+        measurements.limit(20);
         return measurements;
     }
 }

@@ -1,11 +1,8 @@
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -34,10 +31,12 @@ public class ReistijdenServlet extends HttpServlet
         DBCursor json = database.getReistijden(location);
         JSONObject object = new JSONObject();
         String id = "";
+        boolean locationFound = false;
         JSONArray list = new JSONArray();
         
         while(json.hasNext())
         {
+            locationFound = true;
             DBObject measurement = json.next();
             id = (String) measurement.get("location");
             
@@ -58,7 +57,10 @@ public class ReistijdenServlet extends HttpServlet
         response.setContentType("application/json");
         try (PrintWriter out = response.getWriter()) 
         {
-            out.print(object);
+            if(locationFound)
+                out.print(object);
+            else
+                out.print("Location not found");
             out.flush();
         }
     }

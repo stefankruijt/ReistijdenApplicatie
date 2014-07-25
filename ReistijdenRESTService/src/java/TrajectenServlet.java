@@ -23,11 +23,13 @@ public class TrajectenServlet extends HttpServlet
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
-        String location = request.getParameter("location");        
-        String json = database.getTrajectData(location);
+        String location = request.getParameter("location");   
+        String json;
         
-        JSONObject object = new JSONObject();
-        object.put("name", "Stefan Kruijt");
+        if(location == null)
+            json = database.getAllTrajects();
+        else
+            json = database.getTrajectData(location);
         
         response.setContentType("application/json");
         try (PrintWriter out = response.getWriter()) 
