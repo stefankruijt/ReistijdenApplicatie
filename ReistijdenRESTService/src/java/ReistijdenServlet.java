@@ -27,6 +27,9 @@ public class ReistijdenServlet extends HttpServlet
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
+        response.addHeader("Access-Control-Allow-Origin", "*");
+        response.addHeader("Allow", "GET");       
+        
         String location = request.getParameter("location");
         DBCursor json = database.getReistijden(location);
         JSONObject object = new JSONObject();
