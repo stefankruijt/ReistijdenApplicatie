@@ -1,10 +1,64 @@
-<html>
-    <head>
-        <title>Reistijden</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <div>TODO write content</div>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Reistijden</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap-glyphicons.css" rel="stylesheet">    
+
+    <style>
+      body{
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+      
+      .input-append input{
+        height:30px;
+        width: 250px;
+        padding-left:25px;
+      }
+    </style>
+    
+    <script src="js/jquery.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/reistijden.js"></script>
+
+  </head>
+
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="#">Reistijden Gemeente Amsterdam</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Kaart</a></li>
+              <li><a href="#about">Grafiek</a></li>
+            </ul>
+          </div>
+          <form class="navbar-form pull-left form-search">
+            <div class="input-append">
+                <input id="search" data-provide="typeahead" data-items="4" placeholder="Zoek route" type="text" class="search-query">
+                <button class="btn">Zoek</button>
+            </div>
+          </form>
+        </div>               
+      </div>
+    </div>   
+      
+    <nav>
+        <ul class="nav nav-pills nav-stacked span2" id="routeList">
+        </ul>
+    </nav>
+    <div class="container">
+      <h1>Kaart</h1>
+      <p>Use this document as a way to quick start any new project.<br> All you get is this message and a barebones HTML document.</p>
+      
+    </div>    
+  </body>
 </html>
