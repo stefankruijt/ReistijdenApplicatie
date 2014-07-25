@@ -83,12 +83,8 @@ public class DatabaseConnector
             }
             else 
             {
-                if (dbtraject.get("coordinatesHashCode").equals(traject.getRDCoordinates().hashCode())) 
-                {
-                    // Traject is found in database, but coordinates from json file are exactly the same (hashcode is similar)
-                    // System.out.println("Traject: " + traject.getTrajectId() + " is already in database, and unchanged");
-                }
-                else 
+                // Check whether hashcode of traject is similar, if not remove traject and convert all RD coordinates to ETRS89
+                if (!dbtraject.get("coordinatesHashCode").equals(traject.getRDCoordinates().hashCode())) 
                 {
                     // Traject is found in database, but coordinates from json file are different than the ones in the database.
                     System.out.println("Traject: " + traject.getTrajectId() + " needs to be updated.");
@@ -103,7 +99,7 @@ public class DatabaseConnector
 
     private List<double[]> ConvertRDCoordinatesToETRS89(JSONArray rdCoordinates) 
     {
-        List<double[]> result = new ArrayList<>(rdCoordinates.size());
+        List<double[]> convertedCoordinates = new ArrayList<>(rdCoordinates.size());
 
         for (Object rdCoordinate : rdCoordinates) 
         {
@@ -111,9 +107,9 @@ public class DatabaseConnector
             long val1 = (long) array.get(0);
             long val2 = (long) array.get(1);
             double[] coordinates = CoordinateConvertor.ConvertRDCoordinateToETRS89(val1, val2);
-            result.add(coordinates);
+            convertedCoordinates.add(coordinates);
         }
-        return result;
+        return convertedCoordinates;
     }
 
     private void InsertNewTraject(DBCollection table, Traject traject) 

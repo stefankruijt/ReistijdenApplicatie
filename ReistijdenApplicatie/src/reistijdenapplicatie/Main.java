@@ -33,7 +33,7 @@ public class Main
     public Main() 
     {        
           Timer timer = new Timer();
-          timer.schedule(new RefreshTrafficDataTask(), 0, 300000);
+          timer.schedule(new RefreshTrafficDataTask(), 0, 180000);
     }
     
     private class RefreshTrafficDataTask extends TimerTask 
@@ -50,6 +50,7 @@ public class Main
                     try 
                     {
                         Thread.sleep(20000); //Wait 20 seconds before trying again.
+                        RefreshTrafficData();
                     } 
                     catch (InterruptedException ex) 
                     {

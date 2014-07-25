@@ -41,6 +41,10 @@ public class ReistijdenJSONParser
             // Read traject sensor properties
             long velocity = (long) properties.get("Velocity");
             long travelTime = (long) properties.get("Traveltime");
+            
+            // Ignore tractsensors that don't have any usefull information
+            if(velocity == -1 || travelTime == 0)
+                continue;
 
             Date convertedDate;
             try 
