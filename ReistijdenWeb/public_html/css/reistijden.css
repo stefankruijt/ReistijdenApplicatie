@@ -1,0 +1,12 @@
+body{
+    padding-top: 60px;
+}
+
+.input-append input{
+    height:30px;
+    width: 250px;
+    padding-left:25px;
+}
+#map {
+    height: 100%;
+}
