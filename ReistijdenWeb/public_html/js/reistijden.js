@@ -1,10 +1,69 @@
-var trajectenAPI = "http://localhost:8084/ReistijdenRESTService/trajecten";    
+var trajectenAPI = "http://localhost:8084/ReistijdenRESTService/trajecten";
 var trajecten = [];
 var polys = [];
 var map;
 var selectedTraject = "TS_HugoDeVrieslaan_S113_S100";
 
-$(document).ready(function() 
+var app = angular.module('app', ['ui.bootstrap']);
+
+app.controller("NavbarController", function($scope)
+{
+    $scope.trajecten = trajecten;
+    $scope.selectedLocation = undefined;
+    $scope.selectedId = undefined;
+
+    this.tab = 1;
+    this.selectTab = function(setTab)
+    {
+        this.tab = setTab;
+    };
+
+    this.isSelected = function(checkTab)
+    {
+        return this.tab === checkTab;
+    };
+
+    this.search = function()
+    {
+        for(var i=0; i<trajecten.length; i++)
+        {
+            if(trajecten[i].location == $scope.selectedLocation )
+            {
+                return trajecten[i].id;
+            }
+        }
+    };
+});
+
+app.controller("ModalController", function($scope, $modal)
+{
+    $scope.open = function(size)
+    {
+        if(size!=undefined)
+        {
+            selectedTraject = size;
+        }
+        var modalInstance = $modal.open({
+            templateUrl: 'dialogContent.html',
+            controller: ModalInstanceCtrl,
+        });
+    };
+});
+
+var ModalInstanceCtrl = function ($scope, $modalInstance)
+{
+    $scope.selectedTraject = selectedTraject;
+
+    $scope.ok = function () {
+        $modalInstance.close();
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+};
+
+$(document).ready(function()
 {
     // Load Trajecten JSON from ReistijdenRESTService
     $.getJSON(trajectenAPI, function(json) 
@@ -19,19 +78,15 @@ $(document).ready(function()
         }
     }).done(function()
     {
-        var searchLocations = [];        
         for(var i = 0; i < trajecten.length; i++)
         {
             $("#routeList").append('<li class="list-group-item">'+trajecten[i].location+'</li>');
-            searchLocations.push(trajecten[i].location);
         }
-       
-        $('#search').typeahead({source: searchLocations});
         
         map = L.map('map').setView([52.36, 4.89], 13);
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);   
+        }).addTo(map);
         
         drawRoutesOnMap();    
         console.log(polys);
@@ -66,7 +121,12 @@ function drawRoutesOnMap()
             selectedTraject = e.target.options.id;
             var $scope = angular.element('.modalC').scope();
             $scope.open();
-    });
-        polyline.addTo(map);        
+        });
+        polyline.addTo(map);
     }
-}
+};
+
+$("#search").click(function(ev)
+{
+    this.select();
+});

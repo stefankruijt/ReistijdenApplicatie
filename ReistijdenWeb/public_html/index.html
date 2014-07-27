@@ -10,33 +10,33 @@
     <link href="css/reistijden.css" rel="stylesheet"/>
 </head>
 
-<body>
-<div id="modalc" ng-controller="PanelController as panel">
+<body class="modalC" ng-controller="ModalController as modal">
+  <div ng-controller="NavbarController as navbar">
     <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
                 <a class="brand" href="#">Reistijden Gemeente Amsterdam</a>
                 <div class="nav-collapse collapse">
                     <ul class="nav">
-                        <li ng-class="{active: panel.isSelected(1)}"><a href ng-click="panel.selectTab(1)">Kaart</a></li>
-                        <li ng-class="{active: panel.isSelected(2)}"><a href ng-click="panel.selectTab(2)">Routes</a></li>
+                        <li ng-class="{active: navbar.isSelected(1)}"><a href ng-click="navbar.selectTab(1)">Kaart</a></li>
+                        <li ng-class="{active: navbar.isSelected(2)}"><a href ng-click="navbar.selectTab(2)">Routes</a></li>
                     </ul>
                 </div>
                 <form class="navbar-form pull-left form-search">
                     <div class="input-append">
-                        <input id="search" data-provide="typeahead" data-items="4" placeholder="Zoek route" type="text" class="search-query" autocomplete="off">
-                        <button class="btn">Zoek</button>
+                        <input id="search" type="text" ng-model="selectedLocation" autocomplete="off" placeholder="Zoek route" limit="5" typeahead="traject.location for traject in trajecten | filter: $viewValue | limitTo:12" class="form-control" typeahead-on-select='open(navbar.search())'>
+                        <button id="searchButton" class="btn" ng-click="open(navbar.search())">Zoek</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    <div class="modalC" ng-controller="ModalController">
-    <div class="panel" ng-show="panel.isSelected(1)">
+
+    <div class="panel" ng-show="navbar.isSelected(1)">
         <div id="map"></div>
     </div>
 
-    <div class="panel" ng-show="panel.isSelected(2)">
+    <div class="panel" ng-show="navbar.isSelected(2)">
         <h4>Routes</h4>
             <script type="text/ng-template" id="dialogContent.html">
                 <div class="modal-header">
@@ -54,10 +54,9 @@
         <div id="routeList"></div>
       </div>
     </div>
-</div>
+
 <script src="js/jquery-2.1.1.min.js"></script>
-<script src="js/angular1.2.20.js"></script>
-<script src="js/reistijdenAngular.js"></script>
+<script src="js/angular.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/ui-bootstrap-tpls-0.11.0.min.js"></script>
 <script src="js/leaflet.js"></script>
