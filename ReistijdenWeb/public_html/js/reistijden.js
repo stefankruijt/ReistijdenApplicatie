@@ -1,129 +1,91 @@
 var trajectenAPI = "http://localhost:8084/ReistijdenRESTService/trajecten";
 var trajecten = [];
-var polys = [];
 var map;
-var selectedTraject = "TS_HugoDeVrieslaan_S113_S100";
 
 var app = angular.module('app', ['ui.bootstrap']);
 
-app.controller("NavbarController", function($scope)
+app.controller("ReistijdenController", function($scope, $modal, $http)
 {
     $scope.trajecten = trajecten;
     $scope.selectedLocation = undefined;
     $scope.selectedId = undefined;
 
-    this.tab = 1;
+    $http.get(trajectenAPI).then(function(res)
+    {
+        $scope.trajecten = res.data;
+
+        map = L.map('map').setView([52.36, 4.89], 13);
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+
+        $scope.trajecten.forEach(function(traject)
+        {
+            var pointList = [];
+
+            traject.coordinates.forEach(function(coordinate)
+            {
+                pointList.push(new L.LatLng(coordinate[0], coordinate[1]));
+            });
+
+            var polyline = new L.Polyline(pointList,{
+                id: traject._id,
+                color: 'green',
+                weight: 5,
+                opacity: 0.5,
+                smoothFactor: 1,
+                clickable: true
+            });
+
+            polyline.on('click', function(e)
+            {
+                $scope.open(traject);
+            });
+            polyline.addTo(map);
+        });
+    });
+
+    this.selectedTab = 1;
     this.selectTab = function(setTab)
     {
-        this.tab = setTab;
+        this.selectedTab = setTab;
     };
 
-    this.isSelected = function(checkTab)
+    this.isTabSelected = function(checkTab)
     {
-        return this.tab === checkTab;
+        return this.selectedTab === checkTab;
     };
 
     this.search = function()
     {
-        for(var i=0; i<trajecten.length; i++)
+        for(var i=0; i<$scope.trajecten.length; i++)
         {
-            if(trajecten[i].location == $scope.selectedLocation )
+            if($scope.trajecten[i].location == $scope.selectedLocation)
             {
-                return trajecten[i].id;
+                return $scope.trajecten[i];
             }
         }
     };
-});
 
-app.controller("ModalController", function($scope, $modal)
-{
-    $scope.open = function(size)
+    $scope.open = function(traject)
     {
-        if(size!=undefined)
-        {
-            selectedTraject = size;
-        }
         var modalInstance = $modal.open({
             templateUrl: 'dialogContent.html',
             controller: ModalInstanceCtrl,
+            resolve: {
+                traject: function ()
+                {
+                    return traject;
+                }
+            }
         });
     };
 });
 
-var ModalInstanceCtrl = function ($scope, $modalInstance)
+var ModalInstanceCtrl = function($scope, $modalInstance, traject)
 {
-    $scope.selectedTraject = selectedTraject;
-
-    $scope.ok = function () {
+    $scope.traject = traject;
+    $scope.ok = function (){
         $modalInstance.close();
     };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-};
-
-$(document).ready(function()
-{
-    // Load Trajecten JSON from ReistijdenRESTService
-    $.getJSON(trajectenAPI, function(json) 
-    {   
-        for (var i = 0; i < json.length; i++) 
-        {
-            var traject = new Object();
-            traject.id = json[i]["_id"];
-            traject.location = json[i]["location"];
-            traject.coordinates = json[i]["coordinates"]; 
-            trajecten.push(traject);
-        }
-    }).done(function()
-    {
-        for(var i = 0; i < trajecten.length; i++)
-        {
-            $("#routeList").append('<li class="list-group-item">'+trajecten[i].location+'</li>');
-        }
-        
-        map = L.map('map').setView([52.36, 4.89], 13);
-        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-        
-        drawRoutesOnMap();    
-        console.log(polys);
-    });   
-});
-
-function drawRoutesOnMap()
-{
-    for(var q=0; q<trajecten.length; q++)
-    {
-        var route = trajecten[q];
-        var pointList = [];
-    
-        for(var i = 0; i < route.coordinates.length; i++)
-        {
-            var point = new L.LatLng(route.coordinates[i][0], route.coordinates[i][1]);
-            pointList.push(point);                
-        }
-    
-        var polyline = new L.Polyline(pointList, 
-        {       
-            id: route.id,
-            color: 'green',
-            weight: 5,
-            opacity: 0.5,
-            smoothFactor: 1,
-            clickable: true,
-        });
-
-        polyline.on('click', function(e)
-        {
-            selectedTraject = e.target.options.id;
-            var $scope = angular.element('.modalC').scope();
-            $scope.open();
-        });
-        polyline.addTo(map);
-    }
 };
 
 $("#search").click(function(ev)

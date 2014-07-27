@@ -10,56 +10,57 @@
     <link href="css/reistijden.css" rel="stylesheet"/>
 </head>
 
-<body class="modalC" ng-controller="ModalController as modal">
-  <div ng-controller="NavbarController as navbar">
+<body>
+  <div ng-controller="ReistijdenController as controller">
     <div class="navbar navbar-fixed-top">
         <div class="navbar-inner">
             <div class="container">
                 <a class="brand" href="#">Reistijden Gemeente Amsterdam</a>
                 <div class="nav-collapse collapse">
                     <ul class="nav">
-                        <li ng-class="{active: navbar.isSelected(1)}"><a href ng-click="navbar.selectTab(1)">Kaart</a></li>
-                        <li ng-class="{active: navbar.isSelected(2)}"><a href ng-click="navbar.selectTab(2)">Routes</a></li>
+                        <li ng-class="{active: controller.isTabSelected(1)}"><a href ng-click="controller.selectTab(1)">Kaart</a></li>
+                        <li ng-class="{active: controller.isTabSelected(2)}"><a href ng-click="controller.selectTab(2)">Routes</a></li>
                     </ul>
                 </div>
                 <form class="navbar-form pull-left form-search">
                     <div class="input-append">
-                        <input id="search" type="text" ng-model="selectedLocation" autocomplete="off" placeholder="Zoek route" limit="5" typeahead="traject.location for traject in trajecten | filter: $viewValue | limitTo:12" class="form-control" typeahead-on-select='open(navbar.search())'>
-                        <button id="searchButton" class="btn" ng-click="open(navbar.search())">Zoek</button>
+                        <input id="search" type="text" ng-model="selectedLocation" autocomplete="off" placeholder="Zoek route" limit="5" typeahead="traject.location for traject in trajecten | filter: $viewValue | limitTo:12" class="form-control" typeahead-on-select='open(controller.search())'>
+                        <button id="searchButton" class="btn" ng-click="controller.open(navbar.search())">Zoek</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <div class="panel" ng-show="navbar.isSelected(1)">
+    <div class="panel" ng-show="controller.isTabSelected(1)">
         <div id="map"></div>
     </div>
 
-    <div class="panel" ng-show="navbar.isSelected(2)">
+    <div class="panel" ng-show="controller.isTabSelected(2)" >
         <h4>Routes</h4>
+            <div id="modal">
             <script type="text/ng-template" id="dialogContent.html">
                 <div class="modal-header">
-                    <h3 class="modal-title">{{selectedTraject}}</h3>
+                    <h3 class="modal-title"><h6>{{"Location: " + traject.location}}</h6></h3>
                 </div>
                 <div class="modal-body">
-                  <p>Here a visualization of the selected traject</p>
+                  <p>Here a visualization of the selected traject {{}}</p>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" ng-click="ok()">OK</button>
                 </div>
             </script>
-
+            </div>
             <button class="btn btn-default" ng-click="open()">Open dialog</button>
         <div id="routeList"></div>
       </div>
     </div>
 
-<script src="js/jquery-2.1.1.min.js"></script>
-<script src="js/angular.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/ui-bootstrap-tpls-0.11.0.min.js"></script>
-<script src="js/leaflet.js"></script>
-<script src="js/reistijden.js"></script>
-</body>
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/angular1.2.20.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/ui-bootstrap-tpls-0.11.0.min.js"></script>
+    <script src="js/leaflet.js"></script>
+    <script src="js/reistijden.js"></script>
+  </body>
 </html>
