@@ -1,5 +1,6 @@
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -61,7 +62,7 @@ public class ReistijdenServlet extends HttpServlet
         try (PrintWriter out = response.getWriter()) 
         {
             if(locationFound)
-                out.print(object);
+                out.print(JSON.serialize(object));
             else
                 out.print("Location not found");
             out.flush();
