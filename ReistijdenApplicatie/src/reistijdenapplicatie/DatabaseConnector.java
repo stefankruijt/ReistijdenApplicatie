@@ -17,22 +17,18 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.util.JSON;
 
 public class DatabaseConnector 
 {
-    private String host;
-    private int port;
     private DB db;
-
-    public DatabaseConnector(String host, int port) 
+    
+    public DatabaseConnector(String databaseUri) 
     {
-        this.host = host;
-        this.port = port;
-
         try 
         {
-            this.db = connectAndGetTrajectDataDatabase();
+            this.db = connectAndGetTrajectDataDatabase(databaseUri);
         } 
         catch (UnknownHostException e) 
         {
@@ -40,10 +36,10 @@ public class DatabaseConnector
         }
     }
 
-    public DB connectAndGetTrajectDataDatabase() throws UnknownHostException 
+    public DB connectAndGetTrajectDataDatabase(String databaseUri) throws UnknownHostException 
     {
-        MongoClient mongo = new MongoClient(host, port);
-        db = mongo.getDB("TrajectData");
+        MongoClient mongo = new MongoClient(new MongoClientURI(databaseUri));
+        db = mongo.getDB("stefankruijt");
         return db;
     }
 

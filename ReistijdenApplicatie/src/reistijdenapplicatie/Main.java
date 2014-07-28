@@ -13,17 +13,18 @@ import java.util.logging.Logger;
 import model.Measurement;
 import model.Traject;
 
+
 public class Main 
 {
-    DatabaseConnector database = new DatabaseConnector("localhost", 27017);
-    
+    //"mongodb://Stefan:geheim@ds055689.mongolab.com:55689/stefankruijt"
+    private DatabaseConnector database;
     private static final int MAX_TRY = 5;
     
     public static void main(String[] args) 
     {
         try
-        {
-            new Main();
+        {   // arg[0] constains the mongoDB URI
+            new Main(args[0]);
         }
         catch(Exception ex)
         {
@@ -31,16 +32,18 @@ public class Main
         }
     }
 
-    public Main() 
-    {        
-          Timer timer = new Timer();
-          timer.schedule(new RefreshTrafficDataTask(), 0, 180000);
+    public Main(String mongoDBUri) 
+    {
+        database = new DatabaseConnector(mongoDBUri);
+        
+        Timer timer = new Timer();
+        timer.schedule(new RefreshTrafficDataTask(), 0, 180000);
           
-          Timer timer2 = new Timer();
-          timer2.schedule(new CalculateTrajectFF(), 0, 3600000);
+        Timer timer2 = new Timer();
+        timer2.schedule(new CalculateTrajectFF(), 0, 3600000);
                     
-          Timer timer3 = new Timer();
-          timer3.schedule(new CalculateActueleReistijden(), 0, 300000);
+        Timer timer3 = new Timer();
+        timer3.schedule(new CalculateActueleReistijden(), 0, 300000);
     }
     
     private class CalculateTrajectFF extends TimerTask 

@@ -9,7 +9,7 @@ public class CoordinateConvertor
     {
         double[] result = new double[2];
 
-        String filePath = "G:\\Software Development\\CoodinateConversion\\Debug\\CoodinateConversion.exe " + x + " " + y + " " + 0;
+        String filePath = "GeoConversion//CoodinateConversion.exe " + x + " " + y + " " + 0;
         System.out.println(filePath);
         try 
         {
