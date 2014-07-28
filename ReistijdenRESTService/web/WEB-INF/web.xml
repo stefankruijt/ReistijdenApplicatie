@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <context-param>
+        <param-name>databaseUri</param-name>
+        <param-value>mongodb://Stefan:geheim@ds055689.mongolab.com:55689/stefankruijt</param-value>
+    </context-param>
+    <servlet>
+        <servlet-name>actueleReistijden</servlet-name>
+        <servlet-class>ActueleReistijden</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>reistijden</servlet-name>
+        <servlet-class>ReistijdenServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>trajecten</servlet-name>
+        <servlet-class>TrajectenServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>actueleReistijden</servlet-name>
+        <url-pattern>/actueleReistijden</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>reistijden</servlet-name>
+        <url-pattern>/reistijden</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>trajecten</servlet-name>
+        <url-pattern>/trajecten</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+</web-app>

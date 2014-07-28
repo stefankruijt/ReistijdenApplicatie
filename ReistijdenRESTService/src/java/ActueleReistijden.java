@@ -2,18 +2,24 @@ import com.mongodb.DBCursor;
 import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.io.PrintWriter;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import reistijdenapplicatie.DatabaseConnector;
 
-@WebServlet("/actueleReistijden")
 public class ActueleReistijden extends HttpServlet 
 {
-    DatabaseConnector database = new DatabaseConnector("localhost", 27017);
+    DatabaseConnector database;
 
+    public void init(ServletConfig config) throws ServletException
+    {
+        ServletContext context = config.getServletContext();
+        String databaseURI = context.getInitParameter("databaseUri");  
+        database =  new DatabaseConnector(databaseURI);
+    }
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
