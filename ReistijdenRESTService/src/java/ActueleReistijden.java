@@ -1,3 +1,5 @@
+import com.mongodb.DBCursor;
+import com.mongodb.util.JSON;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -7,8 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import reistijdenapplicatie.DatabaseConnector;
 
-@WebServlet("/trajecten")
-public class TrajectenServlet extends HttpServlet 
+@WebServlet("/actueleReistijden")
+public class ActueleReistijden extends HttpServlet 
 {
     DatabaseConnector database = new DatabaseConnector("localhost", 27017);
 
@@ -24,20 +26,14 @@ public class TrajectenServlet extends HttpServlet
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
         response.addHeader("Access-Control-Allow-Origin", "*");
-        response.addHeader("Allow", "GET");
+        response.addHeader("Allow", "GET");       
         
-        String location = request.getParameter("location");   
-        String json;
-        
-        if(location == null)
-            json = database.getAllTrajectsString();
-        else
-            json = database.getTrajectData(location);
-        
+        DBCursor trajecten = database.getActueleReistijden();
+                
         response.setContentType("application/json");
         try (PrintWriter out = response.getWriter()) 
         {
-            out.print(json);
+            out.print(JSON.serialize(trajecten));
             out.flush();
         }
     }

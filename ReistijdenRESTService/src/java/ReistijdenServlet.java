@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import reistijdenapplicatie.DatabaseConnector;
 
 @WebServlet("/reistijden")
 public class ReistijdenServlet extends HttpServlet 
@@ -32,7 +33,7 @@ public class ReistijdenServlet extends HttpServlet
         response.addHeader("Allow", "GET");       
         
         String location = request.getParameter("location");
-        DBCursor json = database.getReistijden(location);
+        DBCursor json = database.getReistijden(location, 20);
         JSONObject object = new JSONObject();
         String id = "";
         boolean locationFound = false;
@@ -44,13 +45,10 @@ public class ReistijdenServlet extends HttpServlet
             DBObject measurement = json.next();
             id = (String) measurement.get("location");
             
-            JSONArray values = new JSONArray();
-            Date timestamp = (Date) measurement.get("timestamp");
-            values.add(timestamp);
-            int traveltime = (int) measurement.get("traveltime");
-            values.add(traveltime);
-            int velocity = (int) measurement.get("velocity");        
-            values.add(velocity);
+            JSONObject values = new JSONObject();
+            values.put("timestamp", measurement.get("timestamp"));
+            values.put("traveltime", measurement.get("traveltime"));
+            values.put("velocity", measurement.get("velocity"));
             
             list.add(values);
         }
@@ -97,15 +95,4 @@ public class ReistijdenServlet extends HttpServlet
     {
         processRequest(request, response);
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() 
-    {
-        return "Short description";
-    }// </editor-fold>
 }
