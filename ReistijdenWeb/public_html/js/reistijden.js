@@ -1,63 +1,59 @@
-var trajectenAPI = "http://localhost:8084/ReistijdenRESTService/trajecten";
-var trajecten = [];
-var map;
+var host = "http://localhost:8084/ReistijdenRESTService";
+var actueleReistijden = {};
 
-var app = angular.module('app', ['ui.bootstrap']);
+var app = angular.module('app', ['ui.bootstrap', 'angularCharts']);
 
-app.controller("ReistijdenController", function($scope, $modal, $http)
-{
-    $scope.trajecten = trajecten;
-    $scope.selectedLocation = undefined;
-    $scope.selectedId = undefined;
+app.controller("ReistijdenController", function($scope, $modal, $http) {
 
-    $http.get(trajectenAPI).then(function(res)
+    $http.get(host + "/trajecten").then(function(res)
     {
         $scope.trajecten = res.data;
 
-        map = L.map('map').setView([52.36, 4.89], 13);
+        var map = L.map('map').setView([52.36, 4.89], 13);
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
 
-        $scope.trajecten.forEach(function(traject)
-        {
-            var pointList = [];
+        $http.get(host + "/actueleReistijden").then(function(res) {
+            $scope.actueleReistijden = res.data;
+            $scope.trajecten.forEach(function(traject) {
+                var pointList = [];
+                var trajectFF = traject.traveltimeFF;
 
-            traject.coordinates.forEach(function(coordinate)
-            {
-                pointList.push(new L.LatLng(coordinate[0], coordinate[1]));
-            });
+                $scope.actueleReistijden.forEach(function(reistijd) {
+                    actueleReistijden[reistijd._id] = reistijd.traveltime;
+                });
 
-            var polyline = new L.Polyline(pointList,{
-                id: traject._id,
-                color: 'green',
-                weight: 5,
-                opacity: 0.5,
-                smoothFactor: 1,
-                clickable: true
-            });
+                traject.coordinates.forEach(function(coordinate) {
+                    pointList.push(new L.LatLng(coordinate[0], coordinate[1]))
+                });
 
-            polyline.on('click', function(e)
-            {
-                $scope.open(traject);
+                var polyline = new L.Polyline(pointList, {
+                    id: traject._id,
+                    color: getTrajectColor(actueleReistijden[traject._id], trajectFF),
+                    weight: 5,
+                    opacity: 0.65,
+                    smoothFactor: 1,
+                    clickable: true
+                });
+
+                polyline.on('click', function(e) {
+                    $scope.open(traject);
+                });
+                polyline.addTo(map);
             });
-            polyline.addTo(map);
         });
     });
 
     this.selectedTab = 1;
-    this.selectTab = function(setTab)
-    {
+    this.selectTab = function(setTab) {
         this.selectedTab = setTab;
     };
 
-    this.isTabSelected = function(checkTab)
-    {
+    this.isTabSelected = function(checkTab) {
         return this.selectedTab === checkTab;
     };
 
-    this.search = function()
-    {
-        for(var i=0; i<$scope.trajecten.length; i++)
-        {
+    this.search = function() {
+        for(var i=0; i<$scope.trajecten.length; i++) {
             if($scope.trajecten[i].location == $scope.selectedLocation)
             {
                 return $scope.trajecten[i];
@@ -65,10 +61,9 @@ app.controller("ReistijdenController", function($scope, $modal, $http)
         }
     };
 
-    $scope.open = function(traject)
-    {
+    $scope.open = function(traject) {
         var modalInstance = $modal.open({
-            templateUrl: 'dialogContent.html',
+            templateUrl: 'modalContent.html',
             controller: ModalInstanceCtrl,
             resolve: {
                 traject: function ()
@@ -80,15 +75,55 @@ app.controller("ReistijdenController", function($scope, $modal, $http)
     };
 });
 
-var ModalInstanceCtrl = function($scope, $modalInstance, traject)
-{
+var ModalInstanceCtrl = function($scope, $modalInstance, traject, $http) {
     $scope.traject = traject;
-    $scope.ok = function (){
+    $scope.chartType = 'line';
+    $scope.data = undefined;
+    $scope.config = {
+        labels: false,
+        title : $scope.traject._id,
+        legend : {
+            display:true,
+            position:'left'
+        },
+        innerRadius: 0
+    };
+
+    $http.get(host + "/reistijden?location="+traject._id).then(function(res) {
+        $scope.measurements = res.data.measurements;
+        $scope.actueleReistijd = actueleReistijden[traject._id];
+
+        var series = ['snelheid', 'reistijd'];
+        var datalist = [];
+
+        for(var i=$scope.measurements.length-1; i>0; i--)
+        {
+            datalist.push({x: 60 - i*3, y: [$scope.measurements[i].velocity, $scope.measurements[i].traveltime]});
+        }
+
+        $scope.data = {series: series, data: datalist};
+    });
+
+    $scope.ok = function () {
         $modalInstance.close();
     };
 };
 
-$("#search").click(function(ev)
-{
+$("#search").click(function(ev) {
     this.select();
 });
+
+function getTrajectColor(traveltime, traveltimeFF) {
+    if (traveltime<=0){
+        return 'white';
+    }
+    else if((traveltime/traveltimeFF)<=1.05) {
+        return 'green';
+    }
+    else if ((traveltime/traveltimeFF)>=1.35) {
+        return 'red';
+    }
+    else {
+        return'yellow';
+    }
+};
