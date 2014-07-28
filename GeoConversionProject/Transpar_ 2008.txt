@@ -1,0 +1,74 @@
+RDNAPTRANS2008 transformation parameters
+
+tx	translation in direction of x axis
+ty	translation in direction of y axis
+tz	translation in direction of z axis
+alpha	rotation around x axis
+beta	rotation around y axis
+gamma	rotation around z axis
+delta	scale parameter (scale = 1 + delta)
+x'	x coordinate of pivot point
+y'	y coordinate of pivot point
+z'	z coordinate of pivot point
+
+Use of parameters:
+Pivot point: center of the ellipsoid
+	output = (delta+1)*R(alpha, beta, gamma)*input+T+pivot
+	T = [tx ty tz]
+
+Pivot point: Amersfoort
+	output = (delta+1)*R(alpha, beta, gamma)*(input-pivot)+T
+	T = [tx ty tz]
+	pivot = [x' y' z']
+
+Transformation parameters from ETRS89 to RD(Bessel)
+Pivot point: center of the ellipsoid
+alfa	-1,9342 	*10^-6 rad
+beta	 1,6677 	*10^-6 rad
+gamma	-9,1019 	*10^-6 rad
+delta	-4,0725 	*10^-6
+tx	-565,4136 	m
+ty	-50,3360 	m
+tz	-465,5516 	m
+
+Pivot point: Amersfoort
+alfa	-1,9342 	*10^-6 rad
+beta	 1,6677 	*10^-6 rad
+gamma	-9,1019 	*10^-6 rad
+delta	-4,0725 	*10^-6
+tx	-593,0248 	m
+ty	-25,9984 	m
+tz	-478,7459 	m
+pivot point Amersfoort in ETRS89 coordinates
+pivot x	3904046,1730 	m
+pivot y	 368161,3118 	m
+pivot z	5013449,0510 	m
+
+
+Transformation parameters from RD(Bessel) to ETRS89
+Pivot point: center of the ellipsoid
+alfa	1,9342 	*10^-6 rad
+beta	-1,6677 	*10^-6 rad
+gamma	9,1019 	*10^-6 rad
+delta	4,0725 	*10^-6
+tx	565,4171 	m
+ty	50,3319 	m
+tz	465,5524 	m
+		
+Pivot point: Amersfoort
+alfa	1,9342 	*10^-6 rad
+beta	-1,6677 	*10^-6 rad
+gamma	9,1019 	*10^-6 rad
+delta	4,0725 	*10^-6
+tx	593,0248 	m
+ty	25,9984 	m
+tz	478,7459 	m
+pivot point Amersfoort in RD(Bessel) coordinates
+x	3903453,1482 	m
+y	 368135,3134 	m
+z	5012970,3051 	m
+
+For the transformation between levelled (NAP) heights and ETRS89 ellipsoidal heights (h) a translation is introduced whenever the geoid height (n) is available for that location.
+NAP = h-n+0.0088
+and
+h = NAP+n-0.0088
