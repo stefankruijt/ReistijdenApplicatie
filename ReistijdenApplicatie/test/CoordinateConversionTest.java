@@ -5,7 +5,7 @@ import util.CoordinateConvertor;
 public class CoordinateConversionTest 
 { 
     @Test
-    public void test() 
+    public void coordinateconversion() 
     {
         double[] test1Result = CoordinateConvertor.ConvertRDCoordinateToETRS89(117380.1200, 575040.3400);
         double[] test1Exptected = {53.160753042 , 4.824761912};

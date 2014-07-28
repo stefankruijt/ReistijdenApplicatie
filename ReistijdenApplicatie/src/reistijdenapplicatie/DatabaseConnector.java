@@ -13,9 +13,11 @@ import util.CoordinateConvertor;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoClient;
+import com.mongodb.util.JSON;
 
 public class DatabaseConnector 
 {
@@ -56,11 +58,11 @@ public class DatabaseConnector
             document.put("traveltime", measurement.getTravelTime());
             document.put("location", measurement.getTrajectId());
             document.put("velocity", measurement.getVelocity());
-            
+
             try 
             {
                 table.insert(document);
-            }
+            } 
             catch (DuplicateKeyException ex) 
             {
                 System.out.println("Measurement is already in database");
@@ -80,7 +82,7 @@ public class DatabaseConnector
             {
                 // Traject isn't found in database, so convert the coordinates to ETR89 coordinates and add them to the database.
                 InsertNewTraject(table, traject);
-            }
+            } 
             else 
             {
                 // Check whether hashcode of traject is similar, if not remove traject and convert all RD coordinates to ETRS89
@@ -89,7 +91,7 @@ public class DatabaseConnector
                     // Traject is found in database, but coordinates from json file are different than the ones in the database.
                     System.out.println("Traject: " + traject.getTrajectId() + " needs to be updated.");
                     // Remove traject from database
-                    RemoveTraject(table, traject);
+                    removeTraject(table, traject);
                     // And add it again (with the new coordinate values				
                     InsertNewTraject(table, traject);
                 }
@@ -114,7 +116,7 @@ public class DatabaseConnector
 
     private void InsertNewTraject(DBCollection table, Traject traject) 
     {
-        // Convert coordinates to a more usefull coordinate system
+        // Convert coordinates to a more usefull coordinate system (RTRS89) 
         List<double[]> coordinates = ConvertRDCoordinatesToETRS89(traject.getRDCoordinates());
 
         BasicDBObject document = new BasicDBObject();
@@ -125,10 +127,96 @@ public class DatabaseConnector
         table.insert(document);
     }
 
-    private void RemoveTraject(DBCollection table, Traject traject) 
+    private void removeTraject(DBCollection table, Traject traject) 
     {
         BasicDBObject document = new BasicDBObject();
         document.put("_id", traject.getTrajectId());
         table.remove(document);
+    }
+
+    public String getTrajectData(String location) 
+    {
+        DBCollection collection = db.getCollection("trajects");
+        BasicDBObject query = new BasicDBObject();        
+        
+        query.put("_id", location);
+        DBObject dbtraject = collection.findOne(query);
+
+        if (dbtraject == null) 
+        {
+            return "Location not found";
+        }
+
+        String result = JSON.serialize(dbtraject);
+        return result;
+    }
+
+    public DBCursor getAllTrajects() 
+    {
+        DBCollection collection = db.getCollection("trajects");
+        DBCursor dbtraject = collection.find();
+        return dbtraject;
+    }
+
+    public String getAllTrajectsString() 
+    {
+        return JSON.serialize(getAllTrajects());
+    }
+
+    public DBCursor getReistijden(String location, int limit) 
+    {
+        DBCollection collection = db.getCollection("measurements");
+        BasicDBObject query = new BasicDBObject();
+        query.put("location", location);
+        DBCursor measurements = collection.find(query);
+        measurements.sort(new BasicDBObject("timestamp", -1));
+        measurements.limit(limit);
+        return measurements;
+    }
+
+    // TraveltimeFF onbreekt in JSON file van trafficlink-online.nl Voor deze waarde wordt nu de gemiddelde reistijd per 24 uur genomen.
+    public void updateTraveltimeFF(String id, int averageTraveltime) 
+    {
+        DBCollection collection = db.getCollection("trajects");
+        BasicDBObject query = new BasicDBObject();
+        query.put("_id", id);
+
+        BasicDBObject update = new BasicDBObject();
+        update.append("$set", new BasicDBObject().append("traveltimeFF", averageTraveltime));
+        collection.update(query, update);
+    }
+
+    public void updateActueleReistijden(ArrayList reistijdenOverzicht) 
+    {
+        DBCollection collection = db.getCollection("actueleReistijden");
+
+        for (Object reistijdenOverzicht1 : reistijdenOverzicht) 
+        {
+            ArrayList list = (ArrayList) reistijdenOverzicht1;
+            if (collection.find(new BasicDBObject("_id", list.get(0))).length() > 0) 
+            {
+                BasicDBObject query = new BasicDBObject();
+                query.put("_id", list.get(0));
+
+                BasicDBObject update = new BasicDBObject();
+                update.append("$set", new BasicDBObject().append("traveltime", list.get(1)).append("timestamp", list.get(2)));
+                collection.update(query, update);
+            }
+            else 
+            {
+                BasicDBObject query = new BasicDBObject();
+                query.put("_id", list.get(0));
+                query.put("traveltime", list.get(1));
+                query.put("timestamp", list.get(2));
+                collection.insert(query);
+            }
+        }
+    }
+
+    public DBCursor getActueleReistijden() 
+    {
+        DBCollection collection = db.getCollection("actueleReistijden");
+        DBCursor dbtraject = collection.find();
+        return dbtraject;
     }
 }

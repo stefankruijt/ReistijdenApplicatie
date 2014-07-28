@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ReistijdenJSONConnector 
 {
@@ -41,5 +43,17 @@ public class ReistijdenJSONConnector
             e.printStackTrace();
         }
         return jsonString.toString();
+    }
+    
+    public void closeStream()
+    {
+        try 
+        {
+            stream.close();
+        } 
+        catch (IOException ex) 
+        {
+            Logger.getLogger(ReistijdenJSONConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
