@@ -23,8 +23,18 @@ public class Main
     public static void main(String[] args) 
     {
         try
-        {   // arg[0] constains the mongoDB URI
-            new Main(args[0]);
+        {   
+            String dbUri;
+            // arg[0] constains the mongoDB URI
+            if(args.length>0) 
+            {                
+                dbUri = args[0];                
+            }
+            else 
+            {
+                dbUri = "mongodb://Stefan:geheim@ds055689.mongolab.com:55689/stefankruijt";
+            }
+            new Main(dbUri);
         }
         catch(Exception ex)
         {
