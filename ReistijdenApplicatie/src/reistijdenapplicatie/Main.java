@@ -37,7 +37,7 @@ public class Main
         database = new DatabaseConnector(mongoDBUri);
         
         Timer timer = new Timer();
-        timer.schedule(new RefreshTrafficDataTask(), 0, 180000);
+        timer.schedule(new RefreshTrafficDataTask(), 0, 300000);
           
         Timer timer2 = new Timer();
         timer2.schedule(new CalculateTrajectFF(), 0, 3600000);
