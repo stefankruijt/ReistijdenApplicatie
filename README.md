@@ -5,5 +5,9 @@ This application visualizes traffic conditions around Amsterdam. I wrote this ap
 
 ### Screenshots
 
-![Index page of teletext](./screenshots/index.png?raw=true)
-![Departures at train stations](./images/train_departures.png?raw=true)
+![](./screenshots/traffic_1.jpg?raw=true)
+![](./screenshots/traffic_2.jpg?raw=true)
+![](./screenshots/traffic_3.jpg?raw=true)
+![](./screenshots/traffic_4.jpg?raw=true)
+![](./screenshots/traffic_5.jpg?raw=true)
+![](./screenshots/traffic_6.jpg?raw=true)
