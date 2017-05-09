@@ -1,3 +1,0 @@
-- Libraries removed:
-    - json-simple-1.1.1.jar
-    - mongo-java-driver-2.12.3.jar
