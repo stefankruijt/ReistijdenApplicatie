@@ -1,8 +1,12 @@
 package com.stefankruijt.trafficapp;
 
 import com.stefankruijt.trafficapp.dao.MeasurementDao;
+import com.stefankruijt.trafficapp.dao.TrajectDao;
 import com.stefankruijt.trafficapp.model.Measurement;
 
+import com.stefankruijt.trafficapp.model.Traject;
+import com.stefankruijt.trafficapp.util.CoordinateConvertor;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -18,14 +22,19 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @SpringBootApplication
 @EnableScheduling
 public class Application implements CommandLineRunner{
 
     @Autowired
-    private MeasurementDao repository;
+    private MeasurementDao measurementDao;
+
+    @Autowired
+    private TrajectDao trajectDao;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -33,10 +42,10 @@ public class Application implements CommandLineRunner{
 
     @Override
     public void run(String... args) throws Exception {
-        repository.deleteAll();
-        repository.save(new Measurement(new Date(), 12, 12));
-        repository.save(new Measurement(new Date(), 15, 18));
-        repository.save(new Measurement(new Date(), 14, 13));
+        measurementDao.deleteAll();
+        measurementDao.save(new Measurement(new Date(), 12, 12));
+        measurementDao.save(new Measurement(new Date(), 15, 18));
+        measurementDao.save(new Measurement(new Date(), 14, 13));
 
         refreshTrajectData();
     }
@@ -45,9 +54,24 @@ public class Application implements CommandLineRunner{
      * On startup read traject sensor file and update database.
      */
     public void refreshTrajectData() {
-        JSONObject sensors = readTrajectSensorsFromFile("TrajectSensorsNH.GeoJSON.txt");
+        trajectDao.deleteAll();
+        JSONObject sensors = readTrajectSensorsFromFile("TrajectSensorsNH.json");
 
-        // TODO Update mongodb
+        JSONArray features = (JSONArray) sensors.get("features");
+        for(Object element : features) {
+            JSONObject a = (JSONObject) element;
+            Traject t = trajectDao.findOne(a.get("Id").toString());
+
+            if(t == null) {
+                t = new Traject(a.get("Id").toString());
+                JSONObject geometry = (JSONObject) a.get("geometry");
+                JSONArray coordinates = (JSONArray) geometry.get("coordinates");
+
+                //t.setEtrs89Coordinates(ConvertRDCoordinatesToETRS89(a.get("Id")));
+            }
+
+            trajectDao.save(t);
+        }
     }
 
     private JSONObject readTrajectSensorsFromFile(String fileName) {
@@ -64,6 +88,21 @@ public class Application implements CommandLineRunner{
         }
 
         return result;
+    }
+
+    private List<double[]> ConvertRDCoordinatesToETRS89(String[] rdCoordinates)
+    {
+        List<double[]> convertedCoordinates = new ArrayList(rdCoordinates.length);
+
+        for (Object rdCoordinate : rdCoordinates)
+        {
+            JSONArray array = (JSONArray) rdCoordinate;
+            long val1 = (long) array.get(0);
+            long val2 = (long) array.get(1);
+            double[] coordinates = CoordinateConvertor.ConvertRDCoordinateToETRS89(val1, val2);
+            convertedCoordinates.add(coordinates);
+        }
+        return convertedCoordinates;
     }
 
     static String readFile(String path) throws IOException

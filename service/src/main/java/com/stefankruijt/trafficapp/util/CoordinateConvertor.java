@@ -1,4 +1,4 @@
-package com.stefankruijt.trafficapp.oldcode;
+package com.stefankruijt.trafficapp.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -9,7 +9,7 @@ public class CoordinateConvertor
     {
         double[] result = new double[2];
 
-        String filePath = "GeoConversionProject//CoodinateConversion.exe " + x + " " + y + " " + 0;
+        String filePath = "CoordinateConvertor.exe " + x + " " + y + " " + 0;
         System.out.println(filePath);
         try 
         {
