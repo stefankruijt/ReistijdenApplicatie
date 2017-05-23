@@ -24,7 +24,7 @@ public class ReistijdenJSONConnector
         stream = new FileInputStream(file);
     }
 
-    public String GetJSONData() 
+    public String getJSONData()
     {
         StringBuilder jsonString = new StringBuilder();
         try 

@@ -5,6 +5,7 @@ import com.stefankruijt.trafficapp.dao.TrajectDao;
 import com.stefankruijt.trafficapp.model.Measurement;
 
 import com.stefankruijt.trafficapp.model.Traject;
+import com.stefankruijt.trafficapp.service.NewYorkTrafficService;
 import com.stefankruijt.trafficapp.util.CoordinateConvertor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -19,6 +20,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -51,63 +53,35 @@ public class Application implements CommandLineRunner{
     }
 
     /***
-     * On startup read traject sensor file and update database.
+     * On startup update all trajects
      */
     public void refreshTrajectData() {
         trajectDao.deleteAll();
-        JSONObject sensors = readTrajectSensorsFromFile("TrajectSensorsNH.json");
 
-        JSONArray features = (JSONArray) sensors.get("features");
-        for(Object element : features) {
-            JSONObject a = (JSONObject) element;
-            Traject t = trajectDao.findOne(a.get("Id").toString());
+        URL url = Thread.currentThread().getContextClassLoader().getResource("testdata/new-york-test-data.txt");
+        File file = new File(url.getPath());
+        // http://207.251.86.229/nyc-links-cams/LinkSpeedQuery.txt
+        List<Traject> trajects = NewYorkTrafficService.NewYorkTrafficService(file);
+
+        for(Traject traject : trajects) {
+            Traject t = trajectDao.findOne(traject.getId());
 
             if(t == null) {
-                t = new Traject(a.get("Id").toString());
-                JSONObject geometry = (JSONObject) a.get("geometry");
-                JSONArray coordinates = (JSONArray) geometry.get("coordinates");
-
-                //t.setEtrs89Coordinates(ConvertRDCoordinatesToETRS89(a.get("Id")));
+                t = new Traject(traject.getId(), traject.getLinkId(), traject.getLinkPoints(), traject.getEncodedPolyLine(),
+                        traject.getEncodedPolyLineLvls(), traject.getOwner());
+            }
+            else {
+                if(t.getHashCode() != traject.getHashCode()) {
+                    t.setEncodedPolyLine(traject.getEncodedPolyLine());
+                    t.setEncodedPolyLineLvls(traject.getEncodedPolyLineLvls());
+                    t.setLinkId(traject.getLinkId());
+                    t.setLinkPoints(traject.getLinkPoints());
+                    t.setOwner(traject.getOwner());
+                    t.setHashCode(traject.getHashCode());
+                }
             }
 
             trajectDao.save(t);
         }
-    }
-
-    private JSONObject readTrajectSensorsFromFile(String fileName) {
-        JSONParser parser = new JSONParser();
-        JSONObject result = new JSONObject();
-
-        try {
-            Resource resource = new ClassPathResource(fileName);
-            result = (JSONObject) parser.parse(readFile(resource.getFile().getPath()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-
-    private List<double[]> ConvertRDCoordinatesToETRS89(String[] rdCoordinates)
-    {
-        List<double[]> convertedCoordinates = new ArrayList(rdCoordinates.length);
-
-        for (Object rdCoordinate : rdCoordinates)
-        {
-            JSONArray array = (JSONArray) rdCoordinate;
-            long val1 = (long) array.get(0);
-            long val2 = (long) array.get(1);
-            double[] coordinates = CoordinateConvertor.ConvertRDCoordinateToETRS89(val1, val2);
-            convertedCoordinates.add(coordinates);
-        }
-        return convertedCoordinates;
-    }
-
-    static String readFile(String path) throws IOException
-    {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, StandardCharsets.UTF_8);
     }
 }
